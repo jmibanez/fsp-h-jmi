@@ -1,0 +1,43 @@
+F***ing Small Panel
+~~~~~~~~~~~~~~~~~~~
+
+What is it and what can it do?
+
+It's a panel for Linux that lists all your windows, but the difference
+is that it's tiny. The binary is about 10k and it takes barely any
+memory. It works under any gnome compliant window manager (eg. E, SawFish,
+WindowMaker, IceWM) and supports KDE's mini icons (the KWM_WIN_ICON atom).
+
+See http://www.chatjunkies.org/fspanel/ for more information.
+
+Changes in 0.7
+~~~~~~~~~~~~~~
+* Windows that set their icons after mapping no longer get the
+  generic icon.
+* A new generic icon (looks better, I think).
+* Fixed lockup when large amount of windows are open.
+* Desktop switching arrows look different.
+* Panel height and width are customizable at the top of fspanel.c.
+  Made the default 24 (previously 22) and font 12. This seems to
+  suite 1024x768 well, change to what suites you.
+* Now uses the unified window manager spec to find the list of
+  windows. Falls back to gnome spec if unavailable. This might make
+  fspanel work on KDE? Note: this is only partially supported and
+  uses the unified spec only for a client list, everything else
+  still uses the gnome window manager spec.
+* Optimized more code - i386-linux binary is now 9280 bytes!
+
+Changes in 0.6
+~~~~~~~~~~~~~~
+* The clock now updates on-the-minute.
+* Optimized some code - binary is 300 bytes smaller :)
+* Made it possible to compile without libXpm.
+* Included some Makefiles for FreeBSD and Solaris.
+* No crash when display fails to open.
+
+Changes in 0.5
+~~~~~~~~~~~~~~
+* Fix refresh for XFree86 4.
+* Fix switching desktops (works in Sawfish now too).
+* Make windows focus when raising.
+
