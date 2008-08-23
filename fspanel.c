@@ -189,7 +189,8 @@ void fill_rect (taskbar *tb, int x, int y, int a, int b){
 }
 
 void scale_icon (task *tk){
-	int xx, yy, x, y, w, h, d, bw;
+	int x, y;
+	unsigned int xx, yy, w, h, d, bw;
 	Pixmap pix, mk = None;
 	XGCValues gcv;
 	GC mgc = 0;
