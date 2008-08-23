@@ -11,6 +11,10 @@ Changes by Adam D. Ruppe, 2007
 Additional changes by JM Ibanez, 2008
 *********************************************************/
 
+#ifndef DO_ICON
+#undef HAVE_XPM
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -188,6 +192,7 @@ void fill_rect (taskbar *tb, int x, int y, int a, int b){
 	XFillRectangle (dd, tb->win, fore_gc, x, y, a, b);
 }
 
+#ifdef DO_ICON
 void scale_icon (task *tk){
 	int x, y;
 	unsigned int xx, yy, w, h, d, bw;
@@ -275,6 +280,8 @@ void get_task_kdeicon (task *tk){
 		XFree (data);
 	}
 }
+
+#endif
 
 unsigned long find_desktop (Window win){
 	unsigned long desk = 0;
@@ -367,9 +374,11 @@ void add_task (taskbar * tb, Window win, int focus){
 
 	tk->demands_attention = !!(state & STATE_DEMANDS_ATTENTION);
 
+#ifdef DO_ICON
 	get_task_kdeicon (tk);
 	if (tk->icon == None)
 		get_task_hinticon (tk);
+#endif
 
 	XSelectInput (dd, win, PropertyChangeMask | FocusChangeMask |
 					  StructureNotifyMask);
@@ -542,7 +551,12 @@ void gui_draw_task (taskbar * tb, task * tk){
 	}
 
 	{
+
+#ifdef DO_ICON
 		register int text_x = x + TEXTPAD + TEXTPAD + ICONWIDTH;
+#else
+		register int text_x = x + TEXTPAD + TEXTPAD;
+#endif
 
 		/* check how many chars can fit */
 		len = strlen (tk->name);
@@ -572,11 +586,13 @@ void gui_draw_task (taskbar * tb, task * tk){
 #endif
 
 	/* draw the task's icon */
+#ifdef DO_ICON        
 	XSetClipMask (dd, fore_gc, tk->mask);
 	XSetClipOrigin (dd, fore_gc, x + TEXTPAD, (WINHEIGHT - ICONHEIGHT) / 2);
 	XCopyArea (dd, tk->icon, tb->win, fore_gc, 0, 0, ICONWIDTH, ICONHEIGHT,
 				  x + TEXTPAD, (WINHEIGHT - ICONHEIGHT) / 2);
 	XSetClipMask (dd, fore_gc, None);
+#endif
 }
 
 void gui_draw_clock (taskbar * tb){
@@ -899,11 +915,14 @@ void handle_propertynotify (taskbar * tb, Window win, Atom at){
 			del_task(tb, tk->win);
 			gui_draw_taskbar (tb);
 		}
-	} else if (at == XA_WM_HINTS)
+	}
+#ifdef DO_ICON
+        else if (at == XA_WM_HINTS)
 	{	// Icon update
 		get_task_hinticon (tk);
 		gui_draw_task (tb, tk);
 	}
+#endif
 }
 
 void handle_error (Display * d, XErrorEvent * ev){
