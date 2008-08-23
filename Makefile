@@ -1,6 +1,6 @@
 CC = gcc
-C_FLAGS = -DNOSTDLIB -DHAVE_XPM -Wall -I/usr/X11R6/include -m386 -falign-loops=2 -falign-jumps=2 -falign-functions=2
-L_FLAGS = -nostdlib -O1 -Xlinker -s -L/usr/X11R6/lib -lX11 -lXpm
+C_FLAGS = -Wall -I/usr/X11R6/include
+L_FLAGS = -O1 -Xlinker -s -L/usr/X11R6/lib -lX11 -lXpm
 PROGNAME = fspanel
 
 $(PROGNAME): Makefile fspanel.c fspanel.h icon.xpm
