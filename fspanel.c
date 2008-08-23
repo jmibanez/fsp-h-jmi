@@ -411,6 +411,8 @@ taskbar * gui_create_taskbar (void){
 	XSizeHints size_hints;
 	XSetWindowAttributes att;
 
+	long val;
+
 	att.background_pixel = palette[0];
 	att.event_mask = ButtonPressMask | ExposureMask;
 
@@ -435,6 +437,10 @@ taskbar * gui_create_taskbar (void){
 	/* make sure the WM obeys our window position */
 	size_hints.flags = PPosition;
 	/*XSetWMNormalHints (dd, win, &size_hints);*/
+        val = 0xFFFFFFFF;
+	XChangeProperty (dd, win, atom__NET_WM_DESKTOP,
+							XA_CARDINAL, 32, PropModeReplace,
+							(unsigned char *) &val, 1);
 	XChangeProperty (dd, win, XA_WM_NORMAL_HINTS,
 							XA_WM_SIZE_HINTS, 32, PropModeReplace,
 							(unsigned char *) &size_hints, sizeof (XSizeHints) / 4);
