@@ -928,6 +928,53 @@ void handle_propertynotify (taskbar * tb, Window win, Atom at){
 void handle_error (Display * d, XErrorEvent * ev){
 }
 
+void grab_keys (Display * d) {
+	int i;
+	int min, max;
+	KeyCode keycode;
+	int modifier = Mod4Mask;
+
+	XDisplayKeycodes (d, &min, &max);
+
+	for(i = 0; i <= 9; i++) {
+		keycode = 10 + i;
+		XGrabKey (d, keycode, modifier, DefaultRootWindow (d),
+			  False, GrabModeAsync, GrabModeAsync);
+	}
+
+}
+
+task * select_task(taskbar *tb, int idx) {
+	task *tk;
+	int i = 0;
+
+	tk = tb->task_list;
+
+	if (idx > tb->num_tasks) {
+		return 0;
+	}
+
+	while (i != idx && tk) {
+		tk = tk->next;
+		i++;
+	}
+	
+	return tk;
+
+}
+
+void handle_key (taskbar *tb, KeyCode keycode) {
+	task *tk;
+
+	tk = select_task (tb, keycode - 10);
+	if (tk) {
+		tk->focused = 1;
+		client_msg(tk->win, atom__NET_ACTIVE_WINDOW, 0, 0, 0, 0, 0);
+		XSetInputFocus (dd, tk->win, RevertToNone, CurrentTime);
+		gui_draw_task (tb, tk);
+	}
+}
+
 int
 #ifdef NOSTDLIB
 _start (void)
@@ -963,6 +1010,7 @@ main (int argc, char *argv[])
 	tb = gui_create_taskbar ();
 	xfd = ConnectionNumber (dd);
 	gui_sync ();
+	grab_keys (dd);
 
 	while (1)
 	{
@@ -980,6 +1028,9 @@ main (int argc, char *argv[])
 			XNextEvent (dd, &ev);
 			switch (ev.type)
 			{
+			case KeyPress:
+				handle_key (tb, ev.xkey.keycode);
+				break;
 			case ButtonPress:
 				handle_press (tb, ev.xbutton.x, ev.xbutton.y, ev.xbutton.button);
 				break;
