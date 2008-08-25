@@ -245,7 +245,8 @@ void get_task_hinticon (task *tk){
 	tk->icon = None;
 	tk->mask = None;
 
-	hin = (XWMHints *) get_prop_data (tk->win, XA_WM_HINTS, XA_WM_HINTS, 0);
+	hin = XGetWMHints (dd, tk->win);
+
 	if (hin)
 	{
 		if ((hin->flags & IconPixmapHint))
