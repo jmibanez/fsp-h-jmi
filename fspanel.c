@@ -8,6 +8,7 @@
 My small hacked panel 1.0
 Original code by Peter Zelezny
 Changes by Adam D. Ruppe, 2007
+Additional changes by JM Ibanez, 2008
 *********************************************************/
 
 #include <stdlib.h>
