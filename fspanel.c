@@ -1058,3 +1058,11 @@ main (int argc, char *argv[])
 
    return 0;*/
 }
+
+/*
+Local Variables:
+mode: c
+indent-tabs-mode: t
+c-basic-offset: 8
+End:
+*/
