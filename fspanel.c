@@ -933,6 +933,7 @@ void grab_keys (Display * d) {
 	int i;
 	int min, max;
 	KeyCode keycode;
+	KeySym keysym;
 	int modifier = Mod4Mask;
 
 	XDisplayKeycodes (d, &min, &max);
@@ -942,6 +943,16 @@ void grab_keys (Display * d) {
 		XGrabKey (d, keycode, modifier, DefaultRootWindow (d),
 			  False, GrabModeAsync, GrabModeAsync);
 	}
+
+
+	keysym = XStringToKeysym ("Tab");
+	keycode = XKeysymToKeycode (d, keysym);
+
+	XGrabKey (d, keycode, modifier, DefaultRootWindow (d),
+		  False, GrabModeAsync, GrabModeAsync);
+	modifier |= ShiftMask;
+	XGrabKey (d, keycode, modifier, DefaultRootWindow (d),
+		  False, GrabModeAsync, GrabModeAsync);
 
 }
 
@@ -964,10 +975,62 @@ task * select_task(taskbar *tb, int idx) {
 
 }
 
-void handle_key (taskbar *tb, KeyCode keycode) {
+task * select_next_task(taskbar *tb) {
+	task *tk = tb->task_list;
+	unsigned int found_t = 0;
+
+	while (tk && !found_t) {
+		if (tk->focused) {
+			found_t = 1;
+		}
+		tk = tk->next;
+	}
+
+	if (tk) {
+		return tk;
+	}
+
+	return tb->task_list;
+}
+
+task * select_prev_task(taskbar *tb) {
+	task *tk, *tk_prev, *tk_sel;
+
+	tk = tb->task_list;
+	tk_prev = tk_sel = 0;
+	
+	while (tk) {
+		if (tk->focused) {
+			tk_sel = tk_prev;
+		}
+
+		tk_prev = tk;
+		tk = tk->next;
+	} 
+
+	if (tk_sel) {
+		return tk_sel;
+	}
+
+	return tk_prev;
+}
+
+
+void handle_key (taskbar *tb, KeyCode keycode, int shift_bit) {
 	task *tk;
 
-	tk = select_task (tb, keycode - 10);
+	if(keycode >= 10 && keycode <= 19) {
+		tk = select_task (tb, keycode - 10);
+	}
+	else {
+		if (!(shift_bit & ShiftMask)) {
+			tk = select_next_task(tb);
+		}
+		else {
+			tk = select_prev_task(tb);
+		}
+	}
+
 	if (tk) {
 		tk->focused = 1;
 		client_msg(tk->win, atom__NET_ACTIVE_WINDOW, 0, 0, 0, 0, 0);
@@ -1030,7 +1093,7 @@ main (int argc, char *argv[])
 			switch (ev.type)
 			{
 			case KeyPress:
-				handle_key (tb, ev.xkey.keycode);
+				handle_key (tb, ev.xkey.keycode, ev.xkey.state);
 				break;
 			case ButtonPress:
 				handle_press (tb, ev.xbutton.x, ev.xbutton.y, ev.xbutton.button);
