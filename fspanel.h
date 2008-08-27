@@ -13,6 +13,7 @@ typedef struct task
 //	unsigned int shaded:1; // me
 	unsigned int icon_copied:1;
 	unsigned int demands_attention:1; // me
+	unsigned int idx; // jmi
 }
 task;
 

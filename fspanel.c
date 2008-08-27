@@ -385,7 +385,8 @@ void add_task (taskbar * tb, Window win, int focus){
 					  StructureNotifyMask);
 
 	/* now append it to our linked list */
-	tb->num_tasks++;
+	tk->idx = ++tb->num_tasks;
+
 
 	list = tb->task_list;
 	if (!list)
@@ -519,6 +520,10 @@ void gui_draw_task (taskbar * tb, task * tk){
 	int len;
 	int x = tk->pos_x;
 	int taskw = tk->width;
+	int idx = tk->idx;
+	int l_name;
+
+	char task_name[200];
 
 	if (!tk->name)
 		return;
@@ -530,6 +535,29 @@ void gui_draw_task (taskbar * tb, task * tk){
 
 	set_foreground (1);
 	draw_line (tb, x + 1, WINHEIGHT - 1, x + taskw, WINHEIGHT - 1);
+
+	// Copy task name to task_name, prepending with idx digit
+	task_name[1] = ']';
+	task_name[2] = ' ';
+
+	if (idx < 10) {
+		task_name[0] = (char)idx + '0';
+	}
+	else {
+		task_name[0] = '*';
+	}
+
+	l_name = strlen(tk->name);
+	if (l_name < 195) {
+		strncpy(task_name+3, tk->name, l_name);
+		task_name[l_name + 3] = '\0';
+	}
+	else {
+		strncpy(task_name+3, tk->name, 193);
+		task_name[l_name + 1] = '.';
+		task_name[l_name + 2] = '.';
+		task_name[199] = '\0';
+	}
 
 	if (tk->focused)
 	{
@@ -560,7 +588,7 @@ void gui_draw_task (taskbar * tb, task * tk){
 #endif
 
 		/* check how many chars can fit */
-		len = strlen (tk->name);
+		len = strlen (task_name);
 		while (XTextWidth (xfs, tk->name, len) >= taskw - (text_x - x) - 2
 				 && len > 0)
 			len--;
@@ -569,7 +597,7 @@ void gui_draw_task (taskbar * tb, task * tk){
 		{
 			/* draw task's name dark (iconified) */
 			set_foreground (3);
-			XDrawString (dd, tb->win, fore_gc, text_x, text_y + 1, tk->name,
+			XDrawString (dd, tb->win, fore_gc, text_x, text_y + 1, task_name,
 							 len);
 			set_foreground (4);
 		} else
@@ -578,7 +606,7 @@ void gui_draw_task (taskbar * tb, task * tk){
 		}
 
 		/* draw task's name here */
-		XDrawString (dd, tb->win, fore_gc, text_x, text_y, tk->name, len);
+		XDrawString (dd, tb->win, fore_gc, text_x, text_y, task_name, len);
 	}
 
 #ifndef HAVE_XPM
@@ -633,7 +661,7 @@ set_foreground (3); /* white *//* it's already 3 from gui_draw_vline() */
 
 void gui_draw_taskbar (taskbar * tb){
 	task *tk;
-	int x, width, taskw;
+	int x, width, taskw, taskw_mod;
 	int under = 0;
 
 	set_foreground (5);	/* black */
@@ -645,6 +673,8 @@ void gui_draw_taskbar (taskbar * tb){
 		goto clear;
 
 	taskw = width / tb->num_tasks;
+	taskw_mod = width % tb->num_tasks;
+
 	if (taskw > MAX_TASK_WIDTH)
 	{
 		taskw = MAX_TASK_WIDTH;
@@ -659,6 +689,14 @@ void gui_draw_taskbar (taskbar * tb){
 		gui_draw_task (tb, tk);
 		x += taskw;
 		tk = tk->next;
+	}
+
+
+	if (taskw_mod && !under) {
+		x = (taskw * tb->num_tasks);
+		gui_draw_vline (tb, x);
+		set_foreground (0);
+		fill_rect (tb, x + 1, 0, WINWIDTH, WINHEIGHT);
 	}
 
 	if (under)
