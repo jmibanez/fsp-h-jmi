@@ -663,6 +663,7 @@ void gui_draw_taskbar (taskbar * tb){
 	task *tk;
 	int x, width, taskw, taskw_mod;
 	int under = 0;
+	int idx = 0;
 
 	set_foreground (5);	/* black */
 
@@ -686,6 +687,8 @@ void gui_draw_taskbar (taskbar * tb){
 	{
 		tk->pos_x = x;
 		tk->width = taskw - 1;
+		// Reset/Recalc idx
+		tk->idx = ++idx;
 		gui_draw_task (tb, tk);
 		x += taskw;
 		tk = tk->next;
