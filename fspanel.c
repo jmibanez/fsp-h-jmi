@@ -553,9 +553,9 @@ void gui_draw_task (taskbar * tb, task * tk){
 		task_name[l_name + 3] = '\0';
 	}
 	else {
-		strncpy(task_name+3, tk->name, 193);
-		task_name[l_name + 1] = '.';
-		task_name[l_name + 2] = '.';
+		strncpy(task_name+3, tk->name, 196);
+		task_name[197] = '.';
+		task_name[198] = '.';
 		task_name[199] = '\0';
 	}
 
